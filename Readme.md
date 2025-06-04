@@ -1,4 +1,4 @@
-# 🔐 Encrypting Outlook Access and Refresh Tokens
+# 1. 🔐 Encrypting Outlook Access and Refresh Tokens
 
 Secure your Outlook OAuth2 credentials by encrypting both access and refresh tokens before storing them in your database. This repository demonstrates how to apply symmetric encryption using Python’s `cryptography` package with Fernet keys.
 
