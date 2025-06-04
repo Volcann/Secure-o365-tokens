@@ -16,5 +16,6 @@ Secure your Outlook OAuth2 credentials by encrypting both access and refresh tok
 
 ```bash
 git clone https://github.com/Volcann/Secure-o365-tokens.git
+pip install cryptography python-dotenv
 python fernet_dummy_test.py
 ```
