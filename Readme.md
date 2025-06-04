@@ -34,3 +34,63 @@ git clone https://github.com/Volcann/Secure-o365-tokens.git
 pip install cryptography python-dotenv
 python fernet_dummy_test.py
 ```
+
+# 🔐 Encrypting Tokens with RSA Public/Private Key Pair
+
+## 1. Encrypting Tokens Before Storage or Transmission
+
+1. Generate an RSA key pair once (e.g., using Python’s `cryptography` library):
+   * Save the private key to `rsa_private_key.pem` with tight permissions (`chmod 600`).
+   * Save the public key to `rsa_public_key.pem`.
+2. Distribute only `rsa_public_key.pem` to any service or client that needs to encrypt tokens.
+3. When creating a token (for example, `"user_id:42|timestamp:2025-06-04T10:00:00Z"`), load the public key and encrypt the plaintext using RSA-OAEP (SHA-256).
+4. Base64-encode the resulting ciphertext if you need a URL- or database-friendly string.
+5. Store or transmit the encrypted token (ciphertext) as needed.
+
+**Pros:**
+
+* Asymmetric security boundary: only the private key can decrypt. Even if someone steals the public key, they cannot recover the token.
+* Public keys can be freely distributed to microservices, mobile clients, etc., without exposing decryption capability.
+* Standardized and battle-tested: RSA with OAEP (SHA-256) is a well-known, widely audited scheme.
+
+**Cons:**
+
+* Payload size limit: RSA-OAEP can only encrypt relatively small data (roughly \~190 bytes with a 2048-bit key and SHA-256). For longer tokens, you must use a hybrid approach (e.g., encrypt a symmetric key with RSA, then encrypt the token with that symmetric key).
+* Performance overhead: RSA encryption/decryption is slower than symmetric schemes (like Fernet).
+* Key management complexity: You must protect, rotate, and back up the private key. Mismanaging it invalidates the entire system.
+
+**Costing:**
+
+* The `cryptography` package and OpenSSL are open-source and free to use.
+* RSA operations incur extra CPU usage, but for typical web-scale usage, this overhead is minimal and won’t noticeably increase hosting costs.
+* Primary “cost” is development time to set up key generation, secure storage of the private key, and integration into your token workflow.
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+git clone https://github.com/Volcann/Secure-o365-tokens.git
+pip install cryptography
+python fernet_dummy_test.py
+```
+
+### 2. Create the Script File
+
+Save the following Python code (shown previously) in a file named `rsa_token_encryptor.py`. This script will:
+
+1. Generate `rsa_private_key.pem` and `rsa_public_key.pem` (if they don’t already exist).
+2. Encrypt a sample token with the public key and print its Base64 ciphertext.
+3. Decrypt it back with the private key to verify.
+
+### 3. Run and Verify
+
+```bash
+python rsa_token_encryptor.py
+```
+
+* Ensure `rsa_private_key.pem` is protected (`chmod 600 rsa_private_key.pem`).
+* Distribute only `rsa_public_key.pem` to any service or client that needs to encrypt tokens.
+* Keep `rsa_private_key.pem` safely on your server under strict permissions.
