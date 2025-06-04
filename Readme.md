@@ -1,9 +1,13 @@
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
+
 # 🔐 Encrypting Outlook Access and Refresh Tokens
 
 - ✅ Fernet Encryption (Symmetric Key)
 Useable for enterprise-level solution? → Yes, with strict key management practices.
 - ✅ RSA Encryption (Asymmetric Key)
 Useable for enterprise-level solution? → Yes, preferred when you need secure token sharing across multiple services or clients.
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
 ## 1. Encrypting Outlook Access and Refresh Tokens Before Database Storage through Fernet Encryption.
 1. Before saving your Outlook OAuth2 tokens, use a secret Fernet key (32-byte) to encrypt them with Python’s `cryptography` package.
@@ -39,6 +43,8 @@ git clone https://github.com/Volcann/Secure-o365-tokens.git
 pip install cryptography python-dotenv
 python fernet_dummy_test.py
 ```
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
 ## 2. Encrypting Tokens with RSA Public/Private Key Pair Before Storage or Transmission
 
@@ -96,3 +102,5 @@ python rsa_token_encryptor.py
 * Ensure `rsa_private_key.pem` is protected (`chmod 600 rsa_private_key.pem`).
 * Distribute only `rsa_public_key.pem` to any service or client that needs to encrypt tokens.
 * Keep `rsa_private_key.pem` safely on your server under strict permissions.
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
