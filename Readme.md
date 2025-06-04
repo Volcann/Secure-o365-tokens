@@ -1,6 +1,11 @@
 # 🔐 Encrypting Outlook Access and Refresh Tokens
 
-## 1. Encrypting Outlook Access and Refresh Tokens Before Database Storage.
+- ✅ Fernet Encryption (Symmetric Key)
+Useable for enterprise-level solution? → Yes, with strict key management practices.
+- ✅ RSA Encryption (Asymmetric Key)
+Useable for enterprise-level solution? → Yes, preferred when you need secure token sharing across multiple services or clients.
+
+## 1. Encrypting Outlook Access and Refresh Tokens Before Database Storage through Fernet Encryption.
 1. Before saving your Outlook OAuth2 tokens, use a secret Fernet key (32-byte) to encrypt them with Python’s `cryptography` package.
 2. Store the encrypted tokens (ciphertexts) in your Django database using `EncryptedCharField` or manual encryption in CharFields.
 3. When you need to refresh the session, decrypt the tokens with the same Fernet key to get the original tokens and proceed with the OAuth2 flow.
@@ -35,9 +40,7 @@ pip install cryptography python-dotenv
 python fernet_dummy_test.py
 ```
 
-# 🔐 Encrypting Tokens with RSA Public/Private Key Pair
-
-## 1. Encrypting Tokens Before Storage or Transmission
+## 2. Encrypting Tokens with RSA Public/Private Key Pair Before Storage or Transmission
 
 1. Generate an RSA key pair once (e.g., using Python’s `cryptography` library):
    * Save the private key to `rsa_private_key.pem` with tight permissions (`chmod 600`).
@@ -72,9 +75,7 @@ python fernet_dummy_test.py
 ### 1. Install Dependencies
 
 ```bash
-git clone https://github.com/Volcann/Secure-o365-tokens.git
 pip install cryptography
-python fernet_dummy_test.py
 ```
 
 ### 2. Create the Script File
@@ -88,6 +89,7 @@ Save the following Python code (shown previously) in a file named `rsa_token_enc
 ### 3. Run and Verify
 
 ```bash
+git clone https://github.com/Volcann/Secure-o365-tokens.git
 python rsa_token_encryptor.py
 ```
 
