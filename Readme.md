@@ -1,29 +1,28 @@
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
-# 🔐 Encrypting Outlook Access and Refresh Tokens
+# 🔐 **Encrypting Outlook Access and Refresh Tokens**
 
-- **✅ Fernet Encryption (Symmetric Key)**
-- Useable for enterprise-level solution? → Yes, with strict key management practices.
-- **Core Encryption Library:** `cryptography`
-- **Other Notable Packages:** `python-dotenv, base64, os`
-  
+### ✅ **Fernet Encryption** *(Symmetric Key)*
 
-- **✅ RSA Encryption (Asymmetric Key)Most prrefered **
-- Useable for enterprise-level solution? → Yes, preferred when you need secure token sharing across multiple services or clients.
-- **Core Encryption Library:** `cryptography`
-- **Other Notable Packages:** `python-dotenv, base64, os`
-  
+* **Useable for enterprise-level solution?** → ✔️ Yes, with strict key management practices.
 
-- **✅ AES-GCM Encryption (Symmetric)**
-- Useable for enterprise-level solution? → Yes, if you rotate keys via a secure vault (e.g., HashiCorp Vault or AWS Secrets Manager) and keep keys unreachable by attackers.
-- **Core Encryption Library:** `cryptography`
-- **Other Notable Packages:** `python-dotenv, base64, os`
-  
+---
 
-- **✅ AWS KMS Encryption (Asymmetric or symmetric under the hood)**
-- Useable for enterprise-level solution? → Yes, highly recommended when you want central key management, auditing, and rotation.
-- **Core Encryption Library:** `boto3`
-- **Other Notable Packages:** `python-dotenv, base64`
+### ✅ **RSA Encryption** *(Asymmetric Key – Most preferred)*
+
+* **Useable for enterprise-level solution?** → ✔️ Yes, preferred when you need secure token sharing across multiple services or clients.
+
+---
+
+### ✅ **AES-GCM Encryption** *(Symmetric)*
+
+* **Useable for enterprise-level solution?** → ✔️ Yes, if you rotate keys via a secure vault (e.g., HashiCorp Vault or AWS Secrets Manager) and keep keys unreachable by attackers.
+
+---
+
+### ✅ **AWS KMS Encryption** *(Asymmetric or symmetric under the hood)*
+
+* **Useable for enterprise-level solution?** → ✔️ Yes, highly recommended when you want central key management, auditing, and rotation.
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
@@ -31,6 +30,8 @@
 1. Before saving your Outlook OAuth2 tokens, use a secret Fernet key (32-byte) to encrypt them with Python’s `cryptography` package.
 2. Store the encrypted tokens (ciphertexts) in your Django database using `EncryptedCharField` or manual encryption in CharFields.
 3. When you need to refresh the session, decrypt the tokens with the same Fernet key to get the original tokens and proceed with the OAuth2 flow.
+4. **Core Encryption Library:** `cryptography`
+5. **Other Notable Packages:** `python-dotenv, base64, os`
 
 **Pros:**
 
@@ -73,6 +74,8 @@ python fernet_dummy_test.py
 3. When creating a token (for example, `"user_id:42|timestamp:2025-06-04T10:00:00Z"`), load the public key and encrypt the plaintext using RSA-OAEP (SHA-256).
 4. Base64-encode the resulting ciphertext if you need a URL- or database-friendly string.
 5. Store or transmit the encrypted token (ciphertext) as needed.
+4. **Core Encryption Library:** `cryptography`
+5. **Other Notable Packages:** `python-dotenv, base64, os`
 
 **Pros:**
 
@@ -146,6 +149,8 @@ python rsa_token_encryptor.py
    nonce, ct_and_tag = blob[:12], blob[12:]
    plaintext = aesgcm.decrypt(nonce, ct_and_tag, associated_data=None).decode()
    ```
+4. **Core Encryption Library:** `cryptography`
+5. **Other Notable Packages:** `python-dotenv, base64, os`
 
 **Pros:**
 
@@ -204,6 +209,8 @@ python rsa_token_encryptor.py
    resp = kms_client.decrypt(CiphertextBlob=blob)
    plaintext = resp["Plaintext"].decode()
    ```
+5. **Core Encryption Library:** `boto3`
+6. **Other Notable Packages:** `python-dotenv, base64`
 
 **Pros:**
 
