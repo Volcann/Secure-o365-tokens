@@ -70,8 +70,8 @@ def main():
     kms_client = get_kms_client()
 
     # 2. Dummy tokens
-    dummy_access = "access_token_example_user_42"
-    dummy_refresh = "refresh_token_example_user_42"
+    dummy_access = "user_id:42|timestamp:2025-06-04T10:00:00Z2"
+    dummy_refresh = "user_id:42|timestamp:2025-06-04T10:00:00Z"
     print("\n[+] Original Access Token:", dummy_access)
     print("[+] Original Refresh Token:", dummy_refresh)
 

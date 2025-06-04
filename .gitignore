@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# RSA keys
+rsa_private_key.pem
+rsa_public_key.pem
+
+# Secrets or tokens
+*.pem
+*.key
+*.crt
+*.env
+secrets.json
+token.txt
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Mac folder metadata
+*.DS_Store
