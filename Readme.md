@@ -4,15 +4,26 @@
 
 - **✅ Fernet Encryption (Symmetric Key)**
 - Useable for enterprise-level solution? → Yes, with strict key management practices.
+- **Core Encryption Library:** `cryptography`
+- **Other Notable Packages:** `python-dotenv, base64, os`
+  
 
-- **✅ RSA Encryption (Asymmetric Key)**
+- **✅ RSA Encryption (Asymmetric Key)Most prrefered **
 - Useable for enterprise-level solution? → Yes, preferred when you need secure token sharing across multiple services or clients.
+- **Core Encryption Library:** `cryptography`
+- **Other Notable Packages:** `python-dotenv, base64, os`
+  
 
 - **✅ AES-GCM Encryption (Symmetric)**
 - Useable for enterprise-level solution? → Yes, if you rotate keys via a secure vault (e.g., HashiCorp Vault or AWS Secrets Manager) and keep keys unreachable by attackers.
+- **Core Encryption Library:** `cryptography`
+- **Other Notable Packages:** `python-dotenv, base64, os`
+  
 
 - **✅ AWS KMS Encryption (Asymmetric or symmetric under the hood)**
 - Useable for enterprise-level solution? → Yes, highly recommended when you want central key management, auditing, and rotation.
+- **Core Encryption Library:** `boto3`
+- **Other Notable Packages:** `python-dotenv, base64`
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
