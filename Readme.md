@@ -6,6 +6,10 @@
 Useable for enterprise-level solution? → Yes, with strict key management practices.
 - ✅ RSA Encryption (Asymmetric Key)
 Useable for enterprise-level solution? → Yes, preferred when you need secure token sharing across multiple services or clients.
+- ✅ AES-GCM Encryption (Symmetric)
+Useable for enterprise-level solution? → Yes, if you rotate keys via a secure vault (e.g., HashiCorp Vault or AWS Secrets Manager) and keep keys unreachable by attackers.
+- ✅ AWS KMS Encryption (Asymmetric or symmetric under the hood)
+Useable for enterprise-level solution? → Yes, highly recommended when you want central key management, auditing, and rotation.
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
 
@@ -102,5 +106,138 @@ python rsa_token_encryptor.py
 * Ensure `rsa_private_key.pem` is protected (`chmod 600 rsa_private_key.pem`).
 * Distribute only `rsa_public_key.pem` to any service or client that needs to encrypt tokens.
 * Keep `rsa_private_key.pem` safely on your server under strict permissions.
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
+
+## 3. AES-GCM Encryption (Symmetric, Authenticated)
+
+1. Create/load a 256-bit AES key (must be 32 bytes).
+   * Store this key in an environment variable (Base64-encoded).
+   * In our example (`aes_token_encryptor.py`), if `AES_KEY` isn’t set, we generate a random key and print it.
+2. Encrypt a token under AES-GCM with a random 12-byte nonce:
+   ```python
+   from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+   import os, base64
+
+   key = base64.b64decode(os.getenv("AES_KEY"))
+   aesgcm = AESGCM(key)
+   nonce = os.urandom(12)
+   ciphertext = aesgcm.encrypt(nonce, token_bytes, associated_data=None)
+   blob = nonce + ciphertext
+   ciphertext_b64 = base64.b64encode(blob).decode()
+   ```
+3. Decrypt to verify:
+   ```python
+   blob = base64.b64decode(ciphertext_b64)
+   nonce, ct_and_tag = blob[:12], blob[12:]
+   plaintext = aesgcm.decrypt(nonce, ct_and_tag, associated_data=None).decode()
+   ```
+
+**Pros:**
+
+* AES-GCM adds authenticity (integrity) check (via GCM tag).
+* Faster than RSA.
+* Nonce ensures unique ciphertexts even for same plaintext.
+
+**Cons:**
+
+* Single symmetric key: if leaked, all tokens compromised.
+* Must use a fresh random nonce each time (our code does).
+* Key rotation must be handled externally (e.g., Vault).
+
+**Cost:**
+
+* Only `cryptography` (open‐source) + slight CPU overhead.
+* Developer time to manage the key (rotate, store, etc.).
+
+---
+
+### Setup & Example
+
+1. Install dependencies:
+
+   ```bash
+   pip install cryptography python-dotenv
+   ```
+2. Create `.env`:
+
+   ```bash
+   AES_KEY=<Base64-encoded 32-byte string>
+   ```
+
+   — if you skip this, the script will generate one and print it.
+3. Run the example:
+
+   ```bash
+   python aes_token_encryptor.py
+   ```
+   
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
+
+## 4. AWS KMS Encryption (Cloud-Managed Keys)
+
+1. Create or identify a Customer Managed Key (CMK) in AWS KMS.
+2. Ensure your IAM principal has `kms:Encrypt` and `kms:Decrypt` on the CMK.
+3. Encrypt tokens by calling `KMS.Encrypt` with the CMK ID:
+   ```python
+   resp = kms_client.encrypt(KeyId=CMK_ID, Plaintext=token_bytes)
+   ciphertext_blob = resp["CiphertextBlob"]  # bytes
+   ciphertext_b64 = base64.b64encode(ciphertext_blob).decode()
+   ```
+4. Decrypt by calling `KMS.Decrypt` on the stored blob:
+   ```python
+   blob = base64.b64decode(ciphertext_b64)
+   resp = kms_client.decrypt(CiphertextBlob=blob)
+   plaintext = resp["Plaintext"].decode()
+   ```
+
+**Pros:**
+
+* KMS handles key storage, rotation, and auditing.
+* No encryption keys stored in code or local machines.
+* Easy integration with AWS roles and policies.
+
+**Cons:**
+
+* Requires AWS account/configuration.
+* Slight latency (network call to KMS).
+* You incur AWS KMS API charges (small per-request cost).
+
+**Cost:**
+
+* boto3 is free; AWS KMS charges apply (roughly \$0.03 per 10K requests as of writing).
+* Developer time to set up IAM/KMS.
+
+---
+
+### Setup & Example
+
+1. Install dependencies:
+
+   ```bash
+   pip install boto3 python-dotenv
+   ```
+2. Create `.env`:
+
+   ```bash
+   AWS_REGION=us-east-1
+   AWS_KMS_KEY_ID=arn:aws:kms:us-east-1:123456789012:key/abcdef01-2345-6789-abcd-ef0123456789
+   ```
+3. Run the example:
+
+   ```bash
+   python kms_token_encryptor.py
+   ```
+
+<img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
+
+## Summary of All Methods
+
+| Method                       | Key Type                                 | Key Storage                           | Payload Size Limit         | Speed            | Use Case                               |
+| ---------------------------- | ---------------------------------------- | ------------------------------------- | -------------------------- | ---------------- | -------------------------------------- |
+| **Fernet**                   | Symmetric                                | Environment variable (32-byte Base64) | Unlimited (token bytes)    | Very fast        | Easy DB encryption                     |
+| **RSA (OAEP)**               | Asymmetric                               | Local files / HSM                     | \~\~190 bytes (2048-bit)   | Moderate         | When you need public key distribution  |
+| **AES-GCM**                  | Symmetric                                | Environment variable / Vault          | Unlimited (token bytes)    | Very fast        | Authenticated encryption               |
+| **AWS KMS**                  | Asymmetric (or symmetric under the hood) | AWS KMS                               | Unlimited (via envelope)   | Slower (network) | Centralized key management (cloud)     |
 
 <img src="https://user-images.githubusercontent.com/74038190/212284115-f47cd8ff-2ffb-4b04-b5bf-4d1c14c0247f.gif" width="100%">
