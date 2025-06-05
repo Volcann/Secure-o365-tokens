@@ -1,24 +1,19 @@
-import os
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet
 
-# Generate a dummy Fernet key and set it as an environment variable
-dummy_key = Fernet.generate_key().decode()
-os.environ["FERNET_KEY"] = dummy_key
-
-# Initialize Fernet with the dummy key
-fernet = Fernet(dummy_key.encode())
+# Generate a key for Fernet encryption
+key = Fernet.generate_key()
+cipher = Fernet(key)
 
 # Sample plaintext to encrypt
 plaintext = "user_id:42|timestamp:2025-06-04T10:00:00Z"
 
-# Encrypt the plaintext
-encrypted_token = fernet.encrypt(plaintext.encode("utf-8")).decode("utf-8")
+# Encrypt the provided string
+token = cipher.encrypt(plaintext)
 
-# Decrypt back to verify
-try:
-    decrypted_text = fernet.decrypt(encrypted_token.encode("utf-8")).decode("utf-8")
-except InvalidToken:
-    decrypted_text = "Decryption failed: Invalid token"
+# Decrypt the token
+decrypted = cipher.decrypt(token)
 
 # Display results
-encrypted_token, decrypted_text
+print("Fernet Key:\n", key.decode())
+print("\nEncrypted Token:\n", token.decode())
+print("\nDecrypted Back to Original:\n", decrypted.decode())
